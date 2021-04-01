@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Auctions{% endblock %}</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
+    </head>
+    <body>
+        <h1><span style="color: rgb(238, 106, 44);">Sean's </span> <span style="color: rgb(50, 128, 230);"> Totally</span> <span style="color:rgb(240, 219, 36);"> Official</span> <span style="color: rgb(162, 241, 88);"> Market ™</span></h1> 
+        <div>
+            {% if user.is_authenticated %}
+                Signed in as <strong>{{ user.username }}</strong>.
+            {% else %}
+                Not signed in.
+            {% endif %}
+            <p></p>
+        </div>
+        <ul class="nav">
+            <li class="nav-item">
+                <h6>
+                    <a class="nav-link" href="{% url 'index' %}">Active Listings</a>
+                </h6>
+            </li>
+            <li class="nav-item">
+                <h6>
+                    <a class="nav-link" href="{% url 'create' %}">Create Listings</a>
+                </h6>
+            </li>
+            <li class="nav-item">
+                <h6>
+                    <a class="nav-link" href="{% url 'watchlist' %}">View Watchlist</a>
+                </h6>
+            </li>
+            <li class="nav-item">
+                <h6>
+                    <a class="nav-link" href="{% url 'category' %}">Search Categories</a>
+                </h6>
+            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <h6>
+                        <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                    </h6>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <h6>
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    </h6>
+                </li>
+                <li class="nav-item">
+                    <h6>
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </h6>
+                </li>
+            {% endif %}
+        </ul>
+        <hr>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>

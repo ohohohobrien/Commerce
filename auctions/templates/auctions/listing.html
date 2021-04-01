@@ -1,0 +1,118 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <div class="hero-name-cont">
+        <h1 class="hero-title">{{ listing.title }}</h1>
+    </div>
+
+    <div class="hero-image-cont">
+        <img src="{{ listing.image }}" alt="product image" class="img-fluid" style="width: 40%; height: 30%;" alt="Responsive image">
+        <br></br>
+    </div>
+
+    <div class="listing-info-cont">
+        {% if listing.active_listing %}
+            {% if current_bid.bid %}
+                <h2 class="price">Currently at ${{ current_bid.bid }}</h2>
+            {% else %}
+                <h2 class="price">Currently at ${{ current_bid }}</h2>
+            {% endif %}
+        {% else %}
+            <h2 class="closed">This auction has closed.</h2>
+        {% endif %}
+        <p></p>
+        {% if listing.active_listing %}
+            {% if user.is_authenticated %}
+                {% if listing.created_by.id != user.id %}
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="alert alert-danger">
+                                    <strong>{{ error|escape }}</strong>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+                    <div class="form-group">
+                        <form class="bid-button" action="{% url 'listing' listing.id %}" method="post">
+                            {% csrf_token %}
+                            {% if current_bid.bid %}
+                                <input type=number step=".01" class="form-control" name="bid" min="{{ current_bid.bid }}" placeholder="Please bid higher than {{ current_bid.bid }}">
+                            {% else %}
+                                <input type=number step=".01" class="form-control" name="bid" min="{{ current_bid }}" placeholder="Please bid higher than {{ current_bid }}">
+                            {% endif %}
+                            <p></p>
+                            <input type="submit" class="btn btn-primary" name="bid-button" value="Place Bid">
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <form class="watchlist-button" action="{% url 'listing' listing.id %}" method="post">
+                            {% csrf_token %}
+                            {% if on_watchlist %}
+                                <input type="submit" class="btn btn-primary" name="watchlist" value="Remove from Watchlist">
+                            {% else %}
+                                <input type="submit" class="btn btn-primary" name="watchlist" value="Add to Watchlist">
+                            {% endif %}
+                        </form>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <form class="close-button" action="{% url 'listing' listing.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-primary" name="close_auction" value="Close Auction">
+                        </form>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            {% if listing.winner == request.user %}
+                <p class="winner-text">Congratulations! You won the auction at ${{ current_bid.bid }}!</p>
+            {% else %}
+                {% if listing.winner %}
+                    <p class="winner-text">This was sold to {{ listing.winner.first_name }} {{ listing.winner.last_name }}.</p>
+                {% else %}
+                    <p class="winner-text">This was closed by you with no winner.</p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        <h5 class="listing-info-header">Description:</h5>
+        <p class="description">{{ listing.description }}</p>
+        {% if listing.category %}
+            <h5 class="listing-info-header">Category:</h5>
+            <p class="category">{{ listing.category.category_name }}</p>
+        {% endif %}
+        <h5 class="listing-info-header">Seller:</h5>
+        <p class="seller">{{ listing.created_by }}</p>
+
+    </div>
+
+    <div class="form-group">
+
+        <form action="{% url 'comment' listing.id %}" class="comment-form" method="post">
+            {% csrf_token %}
+            <h5 class="listing-info-header">Post a comment:</h5>
+            <textarea class="form-control" name="comment" rows = "5" cols = "60" value="Comment" placeholder="Input your comment here..."></textarea>
+            <p></p>
+            <input type="submit" class="btn btn-primary" name="comment-button" value="Post Comment">
+        </form>
+
+    </div>
+
+    <div class="display-comment-area">
+
+        <h5>Comments:</h5>
+        <br></br>
+        {% for comment in listing.comments.all reversed %}
+            <div class="comment-container">
+                <h6 class="comment-name">{{ comment.user.first_name }} {{ comment.user.last_name }}:</h6>
+                <p class="comment-date"><i>{{ comment.time_posted }}</i></p>
+                <p class="comment-text">{{ comment.comment }}</p>
+                <br></br>
+            </div>
+        {% empty %}
+            <h6>No comments exist.</h6>
+        {% endfor %}
+
+    </div>
+    
+{% endblock %}
